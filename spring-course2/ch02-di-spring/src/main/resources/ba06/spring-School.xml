@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+         http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd ">
+
+
+
+    <!--声明School类的对象mySchool-->
+    <!--java中Student类中引用类型School的属性名school和spring容器中(配置文件)<bean的id名称school一样
+                              且数据类型是一致的 , 这样的容器中的bean , spring能够赋值给引用类型.-->
+    <bean id="mySchool" class="com.lypowernode.ba06.School">
+        <property name="name" value="黄埔三期"/>
+        <property name="address" value="广州黄埔"/>
+    </bean>
+
+
+</beans>

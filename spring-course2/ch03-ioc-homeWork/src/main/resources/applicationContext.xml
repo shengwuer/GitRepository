@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+         http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd">
+    <!--使用谁就创建谁的对象 , 创建UserDao接口实现类mysqlDaoImpl的对象
+    <bean id="mysqlDao" class="com.lypowernode.dao.impl.mysqlDaoImpl"/>
+
+    &lt;!&ndash;使用谁就创建谁的对象 , 创建UserDao接口实现类mOracleDaoImpl的对象&ndash;&gt;
+    <bean id="oracleDao" class="com.lypowernode.dao.impl.OracleDaoImpl"/>
+
+    <bean id="userService" class="com.lypowernode.service.impl.UserServiceImpl">
+        <property name="dao" ref="oracleDao"/>&lt;!&ndash;调用setDao()方法 ,set注入&ndash;&gt;
+
+    </bean>-->
+    <!--声明组件扫描器-->
+    <context:component-scan base-package="com.lypowernode.dao"/>
+    <context:component-scan base-package="com.lypowernode.service"/>
+
+</beans>

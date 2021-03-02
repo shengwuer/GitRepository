@@ -1,0 +1,20 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="MyTest.test " type="JUnit" factoryName="JUnit" activateToolWindowBeforeRun="false">
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="com.lypowernode.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <option name="PACKAGE_NAME" value="com.lypowernode" />
+    <option name="MAIN_CLASS_NAME" value="com.lypowernode.MyTest" />
+    <option name="METHOD_NAME" value="test" />
+    <option name="TEST_OBJECT" value="method" />
+    <option name="TEST_SEARCH_SCOPE">
+      <value defaultName="wholeProject" />
+    </option>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
