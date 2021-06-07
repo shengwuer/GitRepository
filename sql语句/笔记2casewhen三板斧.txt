@@ -1,0 +1,188 @@
+
+case when 里面需要一个值是可以用子查询
+
+
+二case when 格式, 
+ case when (表达式) 	| 	if(表达式)	    | 	 if   == 
+-----------------------|-------------------------|-------------------------|
+then 输出		|	   输出	    |	:   (: 表示输出)
+-----------------------|-------------------------|-------------------------|
+when (表达式)	|       else if(表达式) 	    |	else if ==
+-----------------------|-------------------------|-------------------------|
+then 输出		|	输出	    |	:
+-----------------------|-------------------------|-------------------------|
+else		|	else	    |	else  
+-----------------------|-------------------------|-------------------------|
+输出		|	输出   	    |	:
+-----------------------|-------------------------|-------------------------|
+end
+
+1、等值转换
+select id, name,
+
+(case when cid=1         (如果cid等于1)
+then cid=2	    (输出cid为2)
+when cid=2	    (如果cid等于2)
+then cid=1) as A           (输出cid为1)      列名就是A了
+
+ select id AS '学号' ,name AS '姓名',case when cid =20 then '一班' when cid=6 then '二班'when cid=2 then '三班'when cid=7 then '四班' ELSE cid END as A,cid  from stu;
++------+--------+------+------+
+| 学号 | 姓名   | A    | cid  |
++------+--------+------+------+
+|    1 | 贾博学 | 一班 |   20 |
+|    2 | 冯超   | 一班 |   20 |
+|    3 | 李杰   | 一班 |   20 |
+|    4 | 郑国瑞 | 二班 |    6 |
+|    5 | 黄利雄 | 二班 |    6 |
+|    6 | 朱利   | 二班 |    6 |
+|    7 | 罗勇   | 二班 |    6 |
+|    8 | 袁流泉 | 三班 |    2 |
+|    9 | 罗福东 | 三班 |    2 |
+|   10 | 李双杰 | 一班 |   20 |
+|   11 | 郑佳明 | 一班 |   20 |
+|   12 | NULL   | 一班 |   20 |
+|   13 | 李双杰 | 一班 |   20 |
+|   14 | 郑佳明 | 三班 |    2 |
+|   15 | 郑佳明 | 三班 |    2 |
+|   16 | 李双杰 | 四班 |    7 |
+|   17 | 李双杰 | 四班 |    7 |
+|   18 | 李双杰 | 四班 |    7 |
+|   19 | 李双杰 | 四班 |    7 |
++------+--------+------+------+
+19 rows in set (0.00 sec)
+
+2, 行转列
+CREATE TABLE scores(name char(3),stage char(3), score int);
+
+INSERT INTO scores VALUES('A','基',1),('B','基',2),('C','基',2),('A','爬',2),    ('B','爬',3),('C','爬',1),('A','SQL',2),('B','SQL',2),('C','SQL',4);
+
+select * from scores
+    -> ;         ',4);
++------+-------+-------+
+| name | stage | score |
++------+-------+-------+
+| A    | 基    |     1 |
+| B    | 基    |     2 |
+| C    | 基    |     2 |
+| A    | 爬    |     2 |
+| B    | 爬    |     3 |
+| C    | 爬    |     1 |
+| A    | SQL   |     2 |
+| B    | SQL   |     2 |
+| C    | SQL   |     4 |
++------+-------+-------+
+9 rows in set (0.00 sec)
+
+
+首先: 第一步 先按stage分开， 符合条件的设置分数，不符合的给置零。
+  select name,(case  when '基' then score else 0 end)as '基1', (case when stage= '爬' then score else 0 end)as '爬1', (case when stage='SQL' then score else 0 end)as 'SQL1' from  scores;s;
++------+------+------+------+
+| name | 基1  | 爬1  | SQL1 |
++------+------+------+------+
+| A    |    0 |    0 |    0 |
+| B    |    0 |    0 |    0 |
+| C    |    0 |    0 |    0 |
+| A    |    0 |    2 |    0 |
+| B    |    0 |    3 |    0 |
+| C    |    0 |    1 |    0 |
+| A    |    0 |    0 |    2 |
+| B    |    0 |    0 |    2 |
+| C    |    0 |    0 |    4 |
++------+------+------+------+
+9 rows in set, 9 warnings (0.00 sec)
+
+然后: 再按照名字group by ，对分数求max。
+ select 
+name,
+
+max(case when stage='基' then score else  0 end) as '基1', 		(如果stage是基时 
+						输出 score所有值否则输出0值 列名						为别名 '基1')
+
+| name | 基1  
++------+-----
+| A    |    1 |   
+| B    |    2 |   
+| C    |    2 |
+| A    |    0 |   
+| B    |    0 |   
+| C    |    0 |
+| A    |    0 |   
+| B    |    0 |   
+| C    |    0 |
+max(case when stage='爬' then score else  null  end) as '爬1', 		max(如果stage是'爬'							   时 输出 score所有值 否则输出						    	   null值(与上面0)意思一样的值 						   列名为别名 '爬1')
+
+| A    |    null |   
+| B    |    null |   
+| C    |    null |
+| A    |    2     |   
+| B    |    3     |   
+| C    |    1	   |
+| A    |    null |   
+| B    |    null |   
+| C    |   null  |
+max(case when stage='SQL' then score else null  end) as 'SQL1'
+ from
+ 
+scores
+
+ group by name;  			(根据名字分组)
++------+------+------+------+
+| name | 基1   | 爬1   | SQL1 |
++------+------+------+------+
+| A    |    1 |    2 |    2 |
+| B    |    2 |    3 |    2 |
+| C    |    2 |    1 |    4 |
++------+------+------+------+
+3 rows in set (0.06 sec)
+
+或者这样:
+首先: 第一步 先按stage分开， 符合条件的设置分数，不符合的给置零。
+ select name, (case stage when '基' then score else 0 end)as '基1', (case when stage='爬' then score else 0 end)as '爬1', (case stage when 'SQL' then score else 0 end)as 'SQL1' from  scores ;
++------+------+------+------+
+| name | 基1  | 爬1  | SQL1 |
++------+------+------+------+
+| A    |    1 |    0 |    0 |
+| B    |    2 |    0 |    0 |
+| C    |    2 |    0 |    0 |
+| A    |    0 |    2 |    0 |
+| B    |    0 |    3 |    0 |
+| C    |    0 |    1 |    0 |
+| A    |    0 |    0 |    2 |
+| B    |    0 |    0 |    2 |
+| C    |    0 |    0 |    4 |
++------+------+------+------+
+9 rows in set (0.00 sec)
+然后: 再按照名字group by ，对分数求max。
+
+ select
+ name, 
+max(case stage when '基' then score else 0 end)as '基1',
+max(case when stage='爬' then score else 0 end)as '爬1',
+max(case stage when 'SQL' then score else 0 end)as 'SQL1' 
+from  
+scores
+ group by name ;
++------+------+------+------+
+| name | 基1  | 爬1  | SQL1 |
++------+------+------+------+
+| A    |    1 |    2 |    2 |
+| B    |    2 |    3 |    2 |
+| C    |    2 |    1 |    4 |
++------+------+------+------+
+3 rows in set (0.00 sec)
+ 		
+
+
+ select name, max(case when stage='基' then score else 0 end)as '基1', max(case when stage='爬' then score else 0 end)as '爬1 ', (case when stage='SQL' then score else 0 end)as 'SQL1',stage ,score from  scores  group by name;
++------+------+------+------+-------+-------+
+| name | 基1   | 爬1   | SQL1  | stage | score |
++------+------+------+------+-------+-------+
+| A    |    1 |    2 |    0 | 基    |     1 |
+| B    |    2 |    3 |    0 | 基    |     2 |
+| C    |    2 |    1 |    0 | 基    |     2 |
++------+------+------+------+-------+-------+
+3 rows in set (0.00 sec)
+
+
+3, 范围转换
+select name, (case score when score >=3 then '优秀' when>=2 then '良好 when score>=1 '及格' when score>=0 '不及格')  as '等级' from scores;

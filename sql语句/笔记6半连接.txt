@@ -1,0 +1,106 @@
+   半连接
+1. 在子查询内引用父查询的表信息(在在子查询内有访问父查询信息的)
+ select * from stu;
++----+--------+------+
+| id | name   | cid  |
++----+--------+------+
+|  1 | 贾博学 |   20 |
+|  2 | 冯超   |   20 |
+|  3 | 李杰   |   20 |
+|  4 | 郑国瑞 |    6 |
+|  5 | 黄利雄 |    6 |
+|  6 | 朱利   |    6 |
+|  7 | 罗勇   |    6 |
+|  8 | 袁流泉 |    2 |
+|  9 | 罗福东 |    2 |
+| 10 | 李双杰 |   20 |
+| 11 | 郑佳明 |   20 |
+| 12 | NULL   |   20 |
+| 13 | 李双杰 |   20 |
+| 14 | 郑佳明 |    2 |
+| 15 | 郑佳明 |    2 |
+| 16 | 李双杰 |    7 |
+| 17 | 李双杰 |    7 |
+| 18 | 李双杰 |    7 |
+| 19 | 李双杰 |    7 |
++----+--------+------+
+19 rows in set (0.00 sec)
+
+ select * from stu s1 where id = (select max(id) from stu s2 where s2.cid=s1.cid);
+		(id是5,6,7)		(max(id)是7)	         6	 6
++----+--------+------+
+| id | name   | cid  |
++----+--------+------+
+|  7 | 罗勇   |    6 |
+| 13 | 李双杰 |   20 |
+| 15 | 郑佳明 |    2 |
+| 19 | 李双杰 |    7 |
++----+--------+------+
+4 rows in set (0.00 sec)
+
+
+*****5月20号接着看这个
+
+mysql> select * from stu group by cid having max(id);
++----+--------+------+
+| id | name   | cid  |
++----+--------+------+
+|  1 | 贾博学 |   20 |
+|  4 | 郑国瑞 |    6 |
+|  8 | 袁流泉 |    2 |
+| 16 | 李双杰 |    7 |
++----+--------+------+
+4 rows in set (0.00 sec)
+
+
+
+查询每个部门工资最高的员工信息和所在部门
+create table employee(id int,name varchar(20),salary varchar(20),departmentId int);
+create table department(id int,name varchar(20));
+insert into employee values(1,'Joe','7000',1),(2,'JHenry','8000',1),(3,'Sam','6000',1),(4,'Max','9000',1);
+
+select * from Employee;
++------+-------+--------+--------------+
+| id   | name  | Salary | departmentId |
++------+-------+--------+--------------+
+|    1 | Joe   | 70000  | 1            |
+|    2 | Henry | 80000  | 2            |
+|    3 | Sam   | 60000  | 2            |
+|    4 | Max   | 90000  | 1            |
++------+-------+--------+--------------+
+4 rows in set (0.00 sec)
+
+ select * from department;
++------+-------+
+| id   | name  |
++------+-------+
+|    1 | IT    |
+|    2 | Sales |
++------+-------+
+2 rows in set (0.00 sec)
+子查询:
+select * from Employee123 e join department d on e.DepartmentId=d.id where  Salary in(select max(Salary) from Employee123 e1 group by Departmentid);
++------+-------+--------+--------------+------+-------+
+| id   | name  | Salary | DepartmentId | id   | name  |
++------+-------+--------+--------------+------+-------+
+|    2 | Henry | 80000  | 2            |    2 | Sales |
+|    4 | Max   | 90000  | 1            |    1 | IT    |
++------+-------+--------+--------------+------+-------+
+
+join 连表查询:
+select * from Employee123 e join department d on e.DepartmentId=d.id where Salary in (select max(e1.Salary) from Employee123 e1  join Employee123 e2 where e1.DepartmentId=e2.DepartmentId group by  e1.DepartmentId);
++------+-------+--------+--------------+------+-------+
+| id   | name  | Salary | DepartmentId | id   | name  |
++------+-------+--------+--------------+------+-------+
+|    2 | Henry | 80000  | 2            |    2 | Sales |
+|    4 | Max   | 90000  | 1            |    1 | IT    |
++------+-------+--------+--------------+------+-------+
+
+半连接查询(缩写办的join连表查询):
+select * from Employee123 e1 join department d  on e1.DepartmentId=d.id where Salary in(select max(Salary) from Employee123 e2 where e1.DepartmentId=e2.DepartmentId);
++------+-------+--------+--------------+------+-------+
+| id   | name  | Salary | DepartmentId | id   | name  |
++------+-------+--------+--------------+------+-------+
+|    2 | Henry | 80000  | 2            |    2 | Sales |
+|    4 | Max   | 90000  | 1            |    1 | IT    |
++------+-------+--------+--------------+------+-------+

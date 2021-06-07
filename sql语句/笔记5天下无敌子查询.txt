@@ -1,0 +1,13 @@
+1. 子查询在where或者select中时相当于子查询先计算结果后判断;
+SELECT *  FROM STU WHERE ('X',6) in(select name,id from class where name='X');
+SELECT *,(select id from class where manager='LV')  FROM stu ;
+
+2. 子查询在select中返回的值必须是单以值, 不是单个的时候就会报错;
+
+ SELECT *,(select id from class where manager='LV')  FROM stu ;
+
+3. having,on里面也能子查询;
+SELECT *  FROM STU WHERE (name,cid) in(select id,name from class where name='X') having (select name from class where manager='LV');
+
+4. 在from里的子查询必须有别名 表示一个新的表
+select stu.name from stu stu join (select id from class where manager='LV') as c on stu.cid=c.id;

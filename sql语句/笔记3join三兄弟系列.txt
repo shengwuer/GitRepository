@@ -1,0 +1,105 @@
+
+不同行之间共同满足一个条件, 则需要将不同的行放在一行上才可以 , 就要join自己表
+
+create table Employee(id int(3),name varchar(10),Salary int(5),ManagerId int(3));
+
+
+ insert into Employee(Id,Name,Salary,ManagerId)values('1','joe','7000','3');
+insert into Employee(Id,Name,Salary,ManagerId)values('2','Henry','8000','4');
+insert into Employee(Id,Name,Salary,ManagerId)values('3','Sam','6000','0');
+insert into Employee(Id,Name,Salary,ManagerId)values('4','Max','9000','0');
+(id: 员工id, Name: 员工姓名, Salary: 员工工资, ManagerId: 管理id)
+
+select *from Employee;
++------+-------+--------+-----------+
+| id   | name  | Salary | ManagerId |
++------+-------+--------+-----------+
+|    1 | joe   |   7000 |         3 |
+|    1 | Henry |   8000 |         4 |
+|    3 | Sam   |   6000 |         0 |
+|    4 | Max   |   9000 |         0 |
++------+-------+--------+-----------+
+
+查询员工工资比管理工资高的员工
+
+分析:  根据ManagerId知道员工id为3,4的为经理
+	
+首先复制一张表
+select * from Employee e1 join Employee em2;
++------+-------+--------+-----------+------+-------+--------+-----------+
+| id   | name  | Salary | ManagerId | id   | name  | Salary | ManagerId |
++------+-------+--------+-----------+------+-------+--------+-----------+
+|    4 | Max   |   9000 |         0 |    1 | joe   |   7000 |         3 |
+|    3 | Sam   |   6000 |         0 |    1 | joe   |   7000 |         3 |
+|    1 | Henry |   8000 |         4 |    1 | joe   |   7000 |         3 |
+|    1 | joe   |   7000 |         3 |    1 | joe   |   7000 |         3 |
+|    4 | Max   |   9000 |         0 |    1 | Henry |   8000 |         4 |
+|    3 | Sam   |   6000 |         0 |    1 | Henry |   8000 |         4 |
+|    1 | Henry |   8000 |         4 |    1 | Henry |   8000 |         4 |
+|    1 | joe   |   7000 |         3 |    1 | Henry |   8000 |         4 |
+|    4 | Max   |   9000 |         0 |    3 | Sam   |   6000 |         0 |
+|    3 | Sam   |   6000 |         0 |    3 | Sam   |   6000 |         0 |
+|    1 | Henry |   8000 |         4 |    3 | Sam   |   6000 |         0 |
+|    1 | joe   |   7000 |         3 |    3 | Sam   |   6000 |         0 |
+|    4 | Max   |   9000 |         0 |    4 | Max   |   9000 |         0 |
+|    3 | Sam   |   6000 |         0 |    4 | Max   |   9000 |         0 |
+|    1 | Henry |   8000 |         4 |    4 | Max   |   9000 |         0 |
+|    1 | joe   |   7000 |         3 |    4 | Max   |   9000 |         0 |
++------+-------+--------+-----------+------+-------+--------+-----------+
+16 rows in set (0.00 sec)
+
+然后managerId=id 有管理的员工
+select * from Employee e1 join Employee em2 on  e1.managerId=em2.id;
++------+-------+--------+-----------+------+------+--------+-----------+
+| id   | name  | Salary | ManagerId | id   | name | Salary | ManagerId |
++------+-------+--------+-----------+------+------+--------+-----------+
+|    1 | joe   |   7000 |         3 |    3 | Sam  |   6000 |         0 |
+|    1 | Henry |   8000 |         4 |    4 | Max  |   9000 |         0 |
++------+-------+--------+-----------+------+------+--------+-----------+
+
+或者 left join
+ select * from Employee e1 left join Employee em2 on e1.ManagerId=em2.id;
++------+-------+--------+-----------+------+------+--------+-----------+
+| id   | name  | Salary | ManagerId | id   | name | Salary | ManagerId |
++------+-------+--------+-----------+------+------+--------+-----------+
+|    1 | joe   |   7000 |         3 |    3 | Sam  |   6000 |         0 |
+|    1 | Henry |   8000 |         4 |    4 | Max  |   9000 |         0 |
+|    3 | Sam   |   6000 |         0 | NULL | NULL |   NULL |      NULL |
+|    4 | Max   |   9000 |         0 | NULL | NULL |   NULL |      NULL |
++------+-------+--------+-----------+------+------+--------+-----------+
+4 rows in set (0.00 sec)
+或者right join
+ select * from Employee e1 right join Employee em2 on e1.ManagerId=em2.id;
++------+-------+--------+-----------+------+-------+--------+-----------+
+| id   | name  | Salary | ManagerId | id   | name  | Salary | ManagerId |
++------+-------+--------+-----------+------+-------+--------+-----------+
+| NULL | NULL  |   NULL |      NULL |    1 | joe   |   7000 |         3 |
+| NULL | NULL  |   NULL |      NULL |    1 | Henry |   8000 |         4 |
+|    1 | joe   |   7000 |         3 |    3 | Sam   |   6000 |         0 |
+|    1 | Henry |   8000 |         4 |    4 | Max   |   9000 |         0 |
++------+-------+--------+-----------+------+-------+--------+-----------+
+4 rows in set (0.00 sec)
+
+最后e1.Salary>em2.Salary判断员工工资比管理工资高的员工
+select e1.name from Employee e1 join Employee em2 on  e1.managerId=em2.id where e1.Salary>em2.Salary;
++------+
+| name |
++------+
+| joe  |
++------+
+
+ select e1.*,em2.name '管理者' from Employee e1 join Employee em2 on  e1.managerId=em2.id where e1.Salary>em2.Salary;;
++------+------+--------+-----------+--------+
+| id   | name | Salary | ManagerId | 管理者 |
++------+------+--------+-----------+--------+
+|    1 | joe  |   7000 |         3 | Sam    |
++------+------+--------+-----------+--------+
+
+ select e1.id as '员工id', e1.name  as '员工姓名',e1.Salary  as '员工工资',e1.ManagerId  as '员员工管理者id',em2.id '管理者id' ,em2.name '管理者' ,em2.Salary as  '管理者工资', em2.ManagerId  as '管理者id' from Employee e1 join Employee em2 on  e1.managerId=em2.id where e1.Salary>em2.Salary;
++--------+----------+----------+----------------+----------+--------+------------+----------+
+| 员工id | 员工姓名 | 员工工资 | 员员工管理者id | 管理者id | 管理者 | 管理者工资 | 管理者id |
++--------+----------+----------+----------------+----------+--------+------------+----------+
+|      1   | joe          |     7000 |              3 |               3       |  Sam    |    6000 |           0 |
++--------+----------+----------+----------------+----------+--------+------------+----------+
+1 row in set (0.00 sec)
+

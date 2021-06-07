@@ -1,0 +1,194 @@
+一, select格式
+select ... 
+(group by分组以后才能使用, 在查询展示里,聚集函数(avg,sum,count,...))
+from... 
+where...		 (where只能接受from里面的信息)
+
+group by(聚集函数(avg,sum,count,...))  (有每一的情况下都要分组,分组基本上都有聚合函数)
+(...where以后group by分组 后有 select 输出的信息 聚集函数之后 结束 )
+ 
+
+ having ( 后有 select 输出的信息 聚集函数之后 结束然后可以使用having再次过滤 )
+
+order by (排序)
+
+limit 0,2; (第一页,取两条数据)
+
+
+1, CREATE DATABASE py20py6py2;  (建议数据库)
+
+2, SHOW DATABASES;    (显示已有数据库) 
+
+3, USE py20py6py2;    (使用数据库)
+
+4, SHOW TABLES;	(显示数据库中已有的表)
+5, INSERT INTO stu (id,name,cid) VALUES(3,'李杰',20);   (创建一条数据) 
+    INSERT INTO stu (id,name,cid) VALUES(5,'黄利雄',6); 
+    INSERT INTO stu (id,name,cid) VALUES(7,'朱利',6); 
+    INSERT INTO stu (id,name,cid) VALUES(8,'李杰',2); 
+    INSERT INTO stu (id,name,cid) VALUES(9,'李杰',2); 
+    INSERT INTO stu (id,name,cid) VALUES(10,'李双杰',20); 
+    INSERT INTO stu (id,name,cid) VALUES(11,'郑佳明',20); 
+    INSERT INTO stu (id,name,cid) VALUES(12,'NULL',20); 
+    INSERT INTO stu (id,name,cid) VALUES(13,'李双杰',20); 
+  INSERT INTO stu (id,name,cid) VALUES(11,'郑佳明',2); 
+    INSERT INTO stu (id,name,cid) VALUES(12,'NULL',20); 
+    INSERT INTO stu (id,name,cid) VALUES(13,'李双杰',20); 
+INSERT INTO stu (id,name,cid) VALUES(16,'李双杰',7);
+INSERT INTO stu (id,name,cid) VALUES(17,'李双杰',7);
+INSERT INTO stu (id,name,cid) VALUES(18,'李双杰',7);
+6, TRUNCATE stu 清空数据库
+
+7, INSERT INTO stu (id,name,cid) VALUES(1,'贾博学',20),(2,'冯超',20),(3,'李杰',20),(4,'郑国瑞',6),    (5,'黄利雄',6),(6,'朱利',6),(7,'罗勇',2),(8,'袁流泉',2),(9,'罗福东',2);        (创建多条数据)
+
+8, SELECT * FROM stu;   	
++----+--------+------+
+| id | name   | cid  |
++----+--------+------+
+|  1 | 贾博学 |   20 |
+|  2 | 冯超   |   20 |
+|  3 | 李杰   |   20 |
+|  4 | 郑国瑞 |    6 |
+|  5 | 黄利雄 |    6 |
+|  6 | 朱利   |    6 |
+|  7 | 罗勇   |    6 |
+|  8 | 袁流泉 |    2 |
+|  9 | 罗福东 |    2 |
+| 10 | 李双杰 |   20 |
+| 11 | 郑佳明 |   20 |
+| 12 | NULL   |   20 |
+| 13 | 李双杰 |   20 |
++----+--------+------+
+13 rows in set (0.00 sec)
+	
+(查询 stu表中的所有数据)
+
+
+9, SELECT * FROM stu WHERE cid=20;   
++----+--------+------+
+| id | name   | cid  |
++----+--------+------+
+|  1 | 贾博学 |   20 |
+|  2 | 冯超   |   20 |
+|  3 | 李杰   |   20 |
+| 10 | 李双杰 |   20 |
+| 11 | 郑佳明 |   20 |
+| 12 | NULL   |   20 |
+| 13 | 李双杰 |   20 |
++----+--------+------+
+7 rows in set (0.00 sec)
+  (查询stu表中的cid等于20 所有数据)
+
+10, SELECT COUNT(1),cid FROM stu group by cid; 
++----------+------+
+| COUNT(1) | cid  |
++----------+------+
+|        7 |   20 |
+|        4 |    6 |
+|        2 |    2 |
++----------+------+
+3 rows in set (0.00 sec)
+  (查询stu表中 根据cid分组, 计算每组的数据条数, 和每组的cid是多少)
+
+11, SELECT COUNT(name),cid FROM stu group by cid;  
++-------------+------+
+| COUNT(name) | cid  |
++-------------+------+
+|           7 |   20 |
+|           4 |    6 |
+|           2 |    2 |
++-------------+------+
+3 rows in set (0.00 sec)
+ (查询stu表中 根据cid分组, 计算每组的数据条数, 和每组的cid是多少)
+
+12,  SELECT COUNT(distinct name),cid FROM stu group by cid;   
++----------------------+------+
+| COUNT(distinct name) | cid  |
++----------------------+------+
+|                    2 |    2 |
+|                    4 |    6 |
+|                    6 |   20 |
++----------------------+------+
+3 rows in set (0.00 sec)
+ (查询stu表中 根据cid分组, 并且以name去重计算name值,  和每组的cid是多少)
+
+13, SELECT SUM(distinct name),cid FROM stu group by cid;
++--------------------+------+
+| SUM(distinct name) | cid  |
++--------------------+------+
+|                  0 |    2 |
+|                  0 |    6 |
+|                  0 |   20 |
++--------------------+------+
+3 rows in set (0.07 sec)
+(因为name是字符串, 所以转换成数字是零)
+
+
+14, SELECT SUM(cid),cid FROM stu group by cid;
++----------+------+
+| SUM(cid) | cid  |
++----------+------+
+|      140 |   20 |
+|       24 |    6 |
+|        4 |    2 |
++----------+------+
+3 rows in set (0.00 sec)
+(查询stu表中 根据cid分组, 计算每组cid值的和, 和每组的cid是多少)
+
+15, SELECT SUM(distinct cid),cid FROM stu group by cid;
++-------------------+------+
+| SUM(distinct cid) | cid  |
++-------------------+------+
+|                 2 |    2 |
+|                 6 |    6 |
+|                20 |   20 |
++-------------------+------+
+3 rows in set (0.00 sec)
+
+ 16, SELECT avg(cid),cid FROM stu group by cid;
++----------+------+
+| avg(cid) | cid  |
++----------+------+
+|  20.0000 |   20 |
+|   6.0000 |    6 |
+|   2.0000 |    2 |
++----------+------+
+3 rows in set (0.06 sec)
+(查询stu表中 根据cid分组, 计算每组cid值的平均值, 和每组的cid是多少)
+
+17,  SELECT max(id),cid FROM stu group by cid;
++---------+------+
+| max(id) | cid  |
++---------+------+
+|      13 |   20 |
+|       7 |    6 |
+|       9 |    2 |
++---------+------+
+3 rows in set (0.00 sec)
+(查询stu表中 根据cid分组, 计算每组id值最大的, 和每组的cid是多少)
+
+18,  SELECT min(id),cid FROM stu group by cid;
++---------+------+
+| min(id) | cid  |
++---------+------+
+|       1 |   20 |
+|       4 |    6 |
+|       8 |    2 |
++---------+------+
+3 rows in set (0.00 sec)
+(查询stu表中 根据cid分组, 计算每组id值最小的, 和每组的cid是多少)
+
+ SELECT * FROM stu where 1=1 group by cid;
++----+--------+------+
+| id | name   | cid  |
++----+--------+------+
+|  1 | 贾博学 |   20 |
+|  4 | 郑国瑞 |    6 |
+|  8 | 袁流泉 |    2 |
++----+--------+------+
+3 rows in set (0.00 sec)
+(会输出每组的第一条数据)
+
+
+
+

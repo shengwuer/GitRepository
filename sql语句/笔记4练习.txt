@@ -1,0 +1,482 @@
+Create table mst_class(cid varchar(255) not null,grade varchar(255)default null,tate varchar(255)default null) engine=InnoDB DEFAULT CHARSET=UTF8MB4;
+
+INSERT INTO mst_class values('abc123', 'primary','70%');
+ INSERT INTO mst_class values('abc123', 'middle','65%');
+INSERT INTO mst_class values('abc123', 'high','65%');
+ INSERT INTO mst_class values('hjkk86', 'high','74%');
+ INSERT INTO mst_class values('hjkk86', 'middle','63%');
+INSERT INTO mst_class values('hjkk86', 'primary','69%');
+
+select * from mst_class
+    -> ;
++--------+---------+------+
+| cid    | grade   | tate |
++--------+---------+------+
+| abc123 | primary | 70%  |
+| abc123 | middle  | 65%  |
+| abc123 | high    | 65%  |
+| hjkk86 | high    | 74%  |
+| hjkk86 | middle  | 63%  |
+| hjkk86 | primary | 69%  |
++--------+---------+------+
+6 rows in set (0.00 sec)
+查询得到如下表:
++--------+---------+------+--------+
+| cid    | primary | high | middle |
++--------+---------+------+--------+
+| abc123 | 70%     | 65%  | 65%    |
+| hjkk86 | 69%     | 74%  | 63%    |
++--------+---------+------+--------+
+  这样写sql语句:
+select cid,max(case when grade='primary' then tate else null end) as 'primary',max(case when grade='high' then tate else null end) as 'high',max(case when grade='middle' then tate else 0 end) as 'middle'   from mst_class group by cid;
++--------+---------+------+--------+
+| cid    | primary | high | middle |
++--------+---------+------+--------+
+| abc123 | 70%     | 65%  | 65%    |
+| hjkk86 | 69%     | 74%  | 63%    |
++--------+---------+------+--------+
+2 rows in set (0.00 sec)
+
+
+
+例题:
+create table logs(id int,num int);
+
+insert into logs values(1,1),(2,1),(3,1),(4,2),(5,2),(6,3),(7,2),(8,2),(9,2),(10,2);
+
+ select * from logs;
++------+------+
+| id   | num  |
++------+------+
+|    1 |    1 |
+|    2 |    1 |
+|    3 |    1 |
+|    4 |    2 |
+|    5 |    2 |
+|    6 |    3 |
+|    7 |    2 |
+|    8 |    2 |
+|    9 |    2 |
+|   10 |    2 |
++------+------+
+10 rows in set (0.00 sec)
+
+
+查询上表num值连续出现同一数字的sql语句(比如num值为1的)
+
+同一行连续出现三次就是要同一行满足三个条件
+join自己表三次
+
+ select distinct l1.num from logs l1 join logs l2 on l1.id+1=l2.id and l1.num=l2.num  join logs l3 on l2.id+1=l3.id  and l1.num=l2.num where l1.num=l2.num and l2.num=l3.num;
++------+
+| num  |
++------+
+|    1 |
+|    2 |
++------+
+2 rows in set (0.00 sec)
+
+
+
+例题:
+create table Customers(id int, name varchar(255));
+insert into Customers values(1,'Joe'),(2,'Henry'),(3,'Sam'),(4,'Max');
+ select * from customers;
++------+-------+
+| id   | name  |
++------+-------+
+|    1 | Joe   |
+|    2 | Henry |
+|    3 | Sam   |
+|    4 | Max   |
++------+-------+
+4 rows in set (0.00 sec)
+ create table orders(id int,CustomerId int);
+insert into orders values(1,3),(2,1);
+select * from orders;
++------+------------+
+| id   | CustomerId |
++------+------------+
+|    1 |          3 |
+|    2 |          1 |
++------+------------+
+2 rows in set (0.00 sec)
+
+找出从不购买任何东西的顾客
+分析: 
+先查询购买过的顾客id:
+select customers.id from customers  join orders  on customers.id = orders.CustomerId;
++------+
+| id   |
++------+
+|    1 |
+|    3 |
++------+
+2 rows in set (0.00 sec)
+在以此id取反条件得到从未购买的顾客:
+select * from customers where id not in(select customers.id from customers  join orders  on customers.id = orders.CustomerId );
++------+-------+
+| id   | name  |
++------+-------+
+|    2 | Henry |
+|    4 | Max   |
++------+-------+
+2 rows in set (0.00 sec)
+
+
+
+例题:
+
+CREATE TABLE `employee` (
+  `id` int DEFAULT NULL,
+  `name` varchar(10) DEFAULT NULL,
+  `Salary` int DEFAULT NULL,
+  `ManagerId` int DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `department` (
+  `id` int DEFAULT NULL,
+  `name` char(20) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+ 在下面两个表中查询部门工资表前三的员工信息:
+select * from employee ;
++------+-------+--------+-----------+
+| id   | name  | Salary | ManagerId |
++------+-------+--------+-----------+
+|    1 | Joe   |   7000 |         1 |
+|    2 | Henry |   8000 |         2 |
+|    3 | Sam   |   6000 |         2 |
+|    4 | Max   |   9000 |         1 |
+|    5 | Janet |   6900 |         1 |
+|    6 | Randy |   8500 |         1 |
++------+-------+--------+-----------+
+6 rows in set (0.00 sec)
+
+
+select * from department;
++------+-------+
+| id   | name  |
++------+-------+
+|    1 | IT    |
+|    2 | Sales |
++------+-------+
+2 rows in set (0.00 sec)
+
+分析:
+各部门就是说要每个部门之间比较 部门id就要一样 然后比员工之间工资作比较 并根据 部门id分组
+ select * from employee e1 join employee e2 on e1.ManagerId = e2.ManagerId where e1. Salary >=e2.Salary group by e2.id;
++------+-------+--------+-----------+------+-------+--------+-----------+
+| id   | name  | Salary | ManagerId | id   | name  | Salary | ManagerId |
++------+-------+--------+-----------+------+-------+--------+-----------+
+|    6 | Randy |   8500 |         1 |    1 | Joe   |   7000 |         1 |
+|    2 | Henry |   8000 |         2 |    2 | Henry |   8000 |         2 |
+|    3 | Sam   |   6000 |         2 |    3 | Sam   |   6000 |         2 |
+|    4 | Max   |   9000 |         1 |    4 | Max   |   9000 |         1 |
+|    6 | Randy |   8500 |         1 |    5 | Janet |   6900 |         1 |
+|    6 | Randy |   8500 |         1 |    6 | Randy |   8500 |         1 |
++------+-------+--------+-----------+------+-------+--------+-----------+
+6 rows in set (0.00 sec)
+之后再having过滤:
+ select * from employee e1 join employee e2 on e1.ManagerId = e2.ManagerId where e1. Salary >=e2.Salary group by e2.id having count(1) <=3 ;
++------+-------+--------+-----------+------+-------+--------+-----------+
+| id   | name  | Salary | ManagerId | id   | name  | Salary | ManagerId |
++------+-------+--------+-----------+------+-------+--------+-----------+
+|    6 | Randy |   8500 |         1 |    1 | Joe   |   7000 |         1 |
+|    2 | Henry |   8000 |         2 |    2 | Henry |   8000 |         2 |
+|    3 | Sam   |   6000 |         2 |    3 | Sam   |   6000 |         2 |
+|    4 | Max   |   9000 |         1 |    4 | Max   |   9000 |         1 |
+|    6 | Randy |   8500 |         1 |    6 | Randy |   8500 |         1 |
++------+-------+--------+-----------+------+-------+--------+-----------+
+5 rows in set (0.00 sec)
+
+最后join连接department输出根据部门排序(防止前三工资有多个一样的所以 count(distinct e1.Salary) 要去重)
+select e2.*,d.* from employee e1 join employee e2 on e1.ManagerId = e2.ManagerId join department d on e1. managerId=d.id where e1. Salary >=e2.Salary group by e2.id having count(distinct e1.Salary ) <=3 order by d.name ;
++------+-------+--------+-----------+------+-------+
+| id   | name  | Salary | ManagerId | id   | name  |
++------+-------+--------+-----------+------+-------+
+|    1 | Joe   |   7000 |         1 |    1 | IT    |
+|    4 | Max   |   9000 |         1 |    1 | IT    |
+|    6 | Randy |   8500 |         1 |    1 | IT    |
+|    7 | Smart |   7000 |         1 |    1 | IT    |
+|    2 | Henry |   8000 |         2 |    2 | Sales |
+|    3 | Sam   |   6000 |         2 |    2 | Sales |
++------+-------+--------+-----------+------+-------+
+6 rows in set (0.00 sec)
+
+
+例题: 
+CREATE TABLE `weater` ( `id` int NOT NULL, `recorddate` date DEFAULT NULL,`temperature` int DEFAULT NULL,PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+   给定一个weater表, 编写一个SQL查询, 来查找与之前(昨天的)日期相比温度高的一天的id
+SELECT* FROM weater ;
++----+------------+-------------+
+| id | recorddate | temperature |
++----+------------+-------------+
+|  1 | 2015-01-01 |          10 |
+|  2 | 2015-01-02 |          25 |
+|  3 | 2015-01-03 |          20 |
+|  4 | 2015-01-04 |          30 |
++----+------------+-------------+
+4 rows in set (0.00 sec)
+
+分析:
+今天与昨天用join自己放在一个表上同一行上比较
+
+SELECT w.* FROM weater w JOIN weater w1 ON w.recorddate - 1 = w1.recorddate  WHERE w.temperature > w1.temperature ;
+或者:
+SELECT w.* FROM weater w JOIN weater w1 ON DATE_SUB(w.recorddate, INTERVAL 1 DAY) = w1.recorddate  WHERE w.temperature > w1.temperature ;
++----+------------+-------------+
+| id | recorddate | temperature |
++----+------------+-------------+
+|  2 | 2015-01-02 |          25 |
+|  4 | 2015-01-04 |          30 |
++----+------------+-------------+
+2 rows in set (0.00 sec)
+
+
+例题:
+写一段SQL语句查询胡2013年10月1日至2013年10月3日 期间非禁止用户的取消率, 取消率(Cancellation Rate)保留两位小数.
+
+trips:
+2013-10-01 and 2013-10-01 
+分析:
+表trips 条件1: 2013年10月1日至2013年10月3日期间每天
+	    request_at between '2013-10-01' and '2013-10-03' group by request_at
+          条件2 : 取消率(Cancellation Rate)保留两位小数.
+	    round(count(case when status like  'cancell%' then 1 else null end)/count(1),2) 	    	   as Cancellation Rate
+表users 条件: 非禁止用户 banned 为'No'
+	    banned = 'No'
+
+先条件查询表trips
+select request_at as Day, round(count(case when status like  'cancell%' then 1 else null end)/count(1),2) as Cancellation_Rate from trips where request_at between '2013-10-01' and '2013-10-03'  group by request_at ;
++------------+-------------------+
+| Day        | Cancellation_Rate |
++------------+-------------------+
+| 2013-10-01 |              0.50 |
+| 2013-10-02 |              0.00 |
+| 2013-10-03 |              0.33 |
++------------+-------------------+
+3 rows in set (0.00 sec)
+然后join连接表users  根据条件banned = 'No'  driver 通过 t.driver_id=u2.users_id分别 和 join连接比表users client 和 t.client_id=u1.users_id
+select request_at as Day, round(count(case when status like  'cancell%' then 1 else null end)/count(1),2) as Cancellation_Rate from trips t join users u1 on  t.client_id=u1.users_id and u1.banned  ='No' join users u2  on  t.driver_id=u2.users_id  and u2.banned  ='No' where request_at between '2013-10-01' and '2013-10-03'  group by request_at ;
++------------+-------------------+
+| Day        | Cancellation_Rate |
++------------+-------------------+
+| 2013-10-01 |              0.33 |
+| 2013-10-02 |              0.00 |
+| 2013-10-03 |              0.50 |
++------------+-------------------+
+3 rows in set (0.00 sec)
+
+
+例题.
+某奶粉品牌有以下销售数据(订单表Orderinfo), 请计算每个人的消费金额, 消费频次,
+购买产品数量, 第一次购买时间和最后一次购买时间
+
+
+CREATE TABLE `orderinfo` (
+  `CustomerId` varchar(255) NOT NULL,
+  `OrdrId` int NOT NULL,
+  `Sales` int DEFAULT NULL,
+  `Quantity` int DEFAULT NULL,
+  `OrserDate` datetime(6) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+select * from orderinfo ;
++------------+--------+-------+----------+----------------------------+
+| CustomerId | OrdrId | Sales | Quantity | OrserDate                  |
++------------+--------+-------+----------+----------------------------+
+| A          |      1 |   100 |        1 | 2017-03-01 00:00:00.000000 |
+| B          |      3 |   300 |        4 | 2017-03-02 00:00:00.000000 |
+| B          |      4 |  1000 |        1 | 2017-03-01 00:00:00.000000 |
+| C          |      5 |   500 |        3 | 2017-05-03 00:00:00.000000 |
+| C          |      6 |   200 |        1 | 2017-05-04 00:00:00.000000 |
+| A          |      2 |   420 |        3 | 2017-05-15 00:00:00.000000 |
++------------+--------+-------+----------+----------------------------+
+6 rows in set (0.00 sec)
+1). 每个人的消费金额, 消费频次.
+购买产品数量, 第一次购买时间和最后一次购买时间
+
+表`orderinfo` : 
+ select sum(Sales) as  消费金额, count(CustomerId) as 消费频次, sum(Quantity) as 产品数量,min(OrserDate) as 第一次购买时间, max(OrserDate) as 最后一次购买时间 from orderinfo group by CustomerId;
++----------+----------+----------+----------------------------+----------------------------+
+| 消费金额 | 消费频次 | 产品数量 | 第一次购买时间             | 最后一次购买时间           |
++----------+----------+----------+----------------------------+----------------------------+
+|      520 |        2 |        4 | 2017-03-01 00:00:00.000000 | 2017-05-15 00:00:00.000000 |
+|     1300 |        2 |        5 | 2017-03-01 00:00:00.000000 | 2017-03-02 00:00:00.000000 |
+|      700 |        2 |        4 | 2017-05-03 00:00:00.000000 | 2017-05-04 00:00:00.000000 |
++----------+----------+----------+----------------------------+----------------------------+
+3 rows in set (0.00 sec)
+
+2). 改奶粉品牌还有一张订单明细表(OrdrDetail), 请结合表`orderinfo` :, 计算出每个SKU被多少客户买了.
+
+CREATE TABLE `orderdetail` (
+  `orderDetailId` int NOT NULL AUTO_INCREMENT,
+  `orderId` int NOT NULL,
+  `SKN` enum('SKN1','SKN2','SKN3','SKN4','SKN6') CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `qutity` int NOT NULL,
+  PRIMARY KEY (`orderDetailId`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+ select * from orderdetail;
++---------------+---------+------+--------+
+| orderDetailId | orderId | SKN  | qutity |
++---------------+---------+------+--------+
+|             1 |       1 | SKN1 |      1 |
+|             2 |       2 | SKN1 |      2 |
+|             3 |       2 | SKN2 |      1 |
+|             4 |       3 | SKN2 |      2 |
+|             5 |       3 | SKN3 |      2 |
+|             6 |       4 | SKN6 |      1 |
+|             7 |       5 | SKN4 |      2 |
++---------------+---------+------+--------+
+7 rows in set (0.01 sec)
+
+select SKN,count(distinct oi.CustomerId) as 产品被客户购买次数 from orderinfo oi join orderdetail ot on oi.OrdrId  =ot.orderId  group by SKN;
++------+--------------------+
+| SKN  | 产品被客户购买次数 |
++------+--------------------+
+| SKN1 |                  1 |
+| SKN2 |                  2 |
+| SKN3 |                  1 |
+| SKN4 |                  1 |
+| SKN6 |                  1 |
++------+--------------------+
+5 rows in set (0.00 sec)
+
+3). 请结合orderinfo表 和orderdetail表 找出基购买了SKN1有购买了SKN2产品的人
+分析:
+同一行满足两个条件join 自己表 
+select 
+*
+ from
+    orderdetail ot1 join orderdetail ot2
+ON
+   ot1.SKN= 'SKN1' 
+AND
+ ot2.SKN= 'SKN2' 
+AND
+ ot1.orderId = ot2.orderId
+GROUP BY OT1.orderDetailId;
++---------------+---------+------+--------+---------------+---------+------+--------+
+| orderDetailId | orderId | SKN  | qutity | orderDetailId | orderId | SKN  | qutity |
++---------------+---------+------+--------+---------------+---------+------+--------+
+|             2 |       2 | SKN1 |      2 |             3 |       2 | SKN2 |      1 |
+|             1 |       1 | SKN1 |      1 |             3 |       2 | SKN2 |      1 |
++---------------+---------+------+--------+---------------+---------+------+--------+
+2 rows in set (0.00 sec)
+然后在join orderinfo表得到客户
+SELECT
+oi.CustomerId 
+ FROM
+     orderdetail ot1 join orderdetail ot2
+ ON
+     ot1.SKN= 'SKN1' 
+AND
+    ot2.SKN= 'SKN2' 
+and
+ ot1.orderId = ot2.orderId
+JOIN
+orderinfo oi
+ON
+oi.orderId = ot1.orderId
+
+GROUP BY ot1.orderDetailId ;
++------------+
+| CustomerId |
++------------+
+| A          |
++------------+
+1 row in set (0.00 sec)
+
+
+
+SELECT
+oi1.CustomerId 
+ FROM
+     (orderdetail ot1 join orderinfo oi1
+ON
+ ot1.orderId = oi1.orderId)
+JOIN
+   ( orderdetail ot2 join orderinfo oi2
+ ON
+ ot2.orderId = oi2.orderId)
+on
+oi2.CustomerId = oi1.CustomerId 
+where
+     ot1.SKN = 'SKN1' 
+and 
+ ot2.SKN = 'SKN2';
+或者:
+先得到每个人够的的没一个产品在join一起
+SELECT
+* FROM
+WHERE
+
+(SELECT
+*
+ FROM
+orderinfo oi1
+JOIN
+orderdetail ot1
+ON
+oi1.orderId = ot1.orderId
+WHERE
+ot1.SKN = 'SKN1'
+GROUP BY
+oi1.CustomerID ) 
+JOIN
+(
+SELECT
+*
+ FROM
+orderinfo oi1
+JOIN
+orderdetail ot1
+ON
+oi1.orderId = ot1.orderId
+WHERE
+ot1.SKN = 'SKN2'
+GROUP BY
+oi2.CustomerID)
+
+
+4)请结合orderinfo表 和orderdetail表 , 计算出2016年的客户在2017 年的回归率(Retention Rate)
+
+
+分析:
+2016年消费者的在2017年的回归率
+疑似2017年消费的客户在2016年有消费了 除以2016年的总消费人数
+
+ 2016年消费的客户又在2017年里消费了的人 回归率是多少.
+
+2016年消费的客户
+select CustomerId as 消费人数 from orderinfo where OrserDate like '2016%' ;
+2017年消费的客户
+select CustomerId as 消费人数 from orderinfo where OrserDate like '2017%' ;
+ 2016年消费的客户又在2017年里消费了的人(表示要join自己,同一行满足两个条件)
+
+select  * from orderinfo oi1 join orderinfo oi2 on oi1.CustomerId =oi2.CustomerId  where oi1.OrserDate like '2016%' and oi2.OrserDate like '2016%';
+
+
+select count(distinct CustomerId) /(select count(distinct CustomerId) from orderinfo where year(orderDate) = 2016)  as 'Retention Rate'
+    -> from
+    -> orderinfo where CustomerId in(select CustomerId from orderinfo  where year(orderDate) = 2016) and year(orderDate) = 2017 ;
++----------------+
+| Retention Rate |
++----------------+
+|         0.0000 |
++----------------+
+1 row in set (0.08 sec)
+
+
+
+
+
+
+
+
+
+
+
